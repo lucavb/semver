@@ -481,4 +481,46 @@ describe('tryBump', () => {
       expect(newVersion).toBeNull();
     });
   });
+
+  describe('custom parser config', () => {
+    it('can deal with a custom commitParserOptions', async () => {
+      mockGetCommits.mockReturnValue(
+        of(['JIRA-1234 chore: A', 'JIRA-5678 chore B'])
+      );
+      /* Mock bump to return "minor". */
+      mockConventionalRecommendedBump.mockImplementation(
+        callbackify(
+          jest.fn().mockResolvedValue({
+            releaseType: 'minor',
+          })
+        ) as () => void
+      );
+
+      const newVersion = await lastValueFrom(
+        tryBump({
+          syncVersions: false,
+          preset: 'angular',
+          projectRoot: '/libs/demo',
+          tagPrefix: 'v',
+          releaseType: undefined,
+          preid: undefined,
+          skipCommitTypes: ['chore'],
+
+          projectName: '',
+          commitParserOptions: {
+            headerPattern:
+              /^([A-Z]{3,}-\d{1,5}):? (chore|build|ci|docs|feat|fix|perf|refactor|test)(?:\(([\w-]+)\))?\S* (.+)$/,
+            headerCorrespondence: [
+              'ticketReference',
+              'type',
+              'scope',
+              'subject',
+            ],
+          },
+        })
+      );
+
+      expect(newVersion).toBeNull();
+    });
+  });
 });
