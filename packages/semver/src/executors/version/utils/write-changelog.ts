@@ -1,8 +1,10 @@
 import * as chalk from 'chalk';
-import * as createPreset from 'conventional-changelog-conventionalcommits';
 import { accessSync, constants, readFileSync, writeFileSync } from 'fs';
 import { WriteChangelogConfig } from '../schema';
 import { createConventionalCommitStream } from './conventional-commit';
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore
+import { loadPreset } from 'conventional-changelog-preset-loader';
 
 const START_OF_LAST_RELEASE_PATTERN =
   /(^#+ \[?[0-9]+\.[0-9]+\.[0-9]+|<a name=)/m;
@@ -60,8 +62,8 @@ async function buildConventionalChangelog(
   newVersion: string,
 ): Promise<string> {
   const preset =
-    typeof config.preset === 'object'
-      ? await createPreset(config.preset)
+    typeof config.preset === 'object' && typeof config.preset.name === 'string'
+      ? await loadPreset(config.preset.name)
       : config.preset;
 
   return new Promise((resolve, reject) => {
