@@ -9,7 +9,6 @@ export interface DependencyRoot {
 /* istanbul ignore next */
 export async function getDependencyRoots({
   trackDeps,
-  releaseAs,
   projectName,
   context,
 }: Required<Pick<VersionBuilderSchema, 'trackDeps'>> &
@@ -17,7 +16,7 @@ export async function getDependencyRoots({
     projectName: string;
     context: ExecutorContext;
   }): Promise<DependencyRoot[]> {
-  if (trackDeps && !releaseAs) {
+  if (trackDeps) {
     // Include any depended-upon libraries in determining the version bump.
     return (await getProjectDependencies(projectName)).map((name) => ({
       name,

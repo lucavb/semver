@@ -58,7 +58,6 @@ export default async function version(
   try {
     dependencyRoots = await getDependencyRoots({
       projectName,
-      releaseAs,
       trackDeps,
       context,
     });
