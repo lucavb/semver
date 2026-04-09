@@ -3,6 +3,7 @@ import * as createPreset from 'conventional-changelog-conventionalcommits';
 import { accessSync, constants, readFileSync, writeFileSync } from 'fs';
 import { WriteChangelogConfig } from '../schema';
 import { createConventionalCommitStream } from './conventional-commit';
+import * as conventionalChangelog from 'conventional-changelog';
 
 const START_OF_LAST_RELEASE_PATTERN =
   /(^#+ \[?[0-9]+\.[0-9]+\.[0-9]+|<a name=)/m;
@@ -60,10 +61,19 @@ async function buildConventionalChangelog(
   config: WriteChangelogConfig,
   newVersion: string,
 ): Promise<string> {
-  const preset =
-    typeof config.preset === 'object'
-      ? await createPreset(config.preset)
-      : config.preset;
+  let preset;
+  if (typeof config.preset === 'object') {
+    if (config.preset.name) {
+      // Use the name property to load a different preset
+      preset = config.preset.name;
+    } else {
+      // Fallback to creating a preset from the object
+      preset = await createPreset(config.preset);
+    }
+  } else {
+    // Use the preset directly if it's not an object
+    preset = config.preset;
+  }
 
   return new Promise((resolve, reject) => {
     let changelog = '';
