@@ -1,0 +1,29 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.exists = exists;
+exports.readFile = readFile;
+exports.readFileIfExists = readFileIfExists;
+exports.readJsonFile = readJsonFile;
+exports.writeFile = writeFile;
+const fs = require("fs");
+const rxjs_1 = require("rxjs");
+const operators_1 = require("rxjs/operators");
+const fsPromises = fs.promises;
+/* istanbul ignore next */
+function exists(filePath) {
+    return (0, rxjs_1.defer)(() => fsPromises.access(filePath, fs.constants.R_OK | fs.constants.W_OK)).pipe((0, operators_1.map)(() => true), (0, operators_1.catchError)(() => (0, rxjs_1.of)(false)));
+}
+function readFile(filePath) {
+    return (0, rxjs_1.defer)(() => fsPromises.readFile(filePath, { encoding: 'utf-8' }));
+}
+function readFileIfExists(filePath, fallback = '') {
+    return exists(filePath).pipe((0, operators_1.switchMap)((exist) => (exist ? readFile(filePath) : (0, rxjs_1.of)(fallback))));
+}
+function readJsonFile(filePath) {
+    return readFile(filePath).pipe((0, operators_1.map)((data) => JSON.parse(data)));
+}
+/* istanbul ignore next */
+function writeFile(filePath, data) {
+    return (0, rxjs_1.defer)(() => fsPromises.writeFile(filePath, data, { encoding: 'utf-8' }));
+}
+//# sourceMappingURL=filesystem.js.map
